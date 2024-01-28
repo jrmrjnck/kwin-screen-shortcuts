@@ -1,0 +1,20 @@
+{
+    "KPlugin": {
+        "Name": "Screen Shortcuts",
+        "Description": "Fix KDE's screen shortcut ordering",
+        "Icon": "preferences-system-windows",
+        "Authors": [
+            {
+                "Email": "jonathan.doman@gmail.com",
+                "Name": "Jonathan Doman"
+            }
+        ],
+        "Id": "screen-shortcuts",
+        "Version": "1.0",
+        "License": "Unlicense",
+        "Website": "https://github.com/jrmrjnck/kwin-screen-shortcuts"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "KPackageStructure": "KWin/Script"
+}

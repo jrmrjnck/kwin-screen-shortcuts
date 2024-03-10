@@ -1,3 +1,9 @@
+function debug (...args) {
+   if (false) {
+      print(...args);
+   }
+}
+
 // Given two screen bounds, a < b if a's left edge is left of b's. If left edges
 // are equal, a < b if a's top edge is below b's.
 function screenSort(a, b) {
@@ -16,23 +22,28 @@ function screenSort(a, b) {
 // internal index.
 function logicalToPhysicalScreen(logicalScreen) {
   var screens = [];
-  for (var i = 0; i < workspace.numScreens; ++i) {
-    var screen =
-        workspace.clientArea(KWin.ScreenArea, i, workspace.currentDesktop);
-    screens.push([ i, screen ])
+  for (var i = 0; i < workspace.screens.length; ++i) {
+    var screen = workspace.screens[i];
+    var screenArea =
+        workspace.clientArea(KWin.ScreenArea, screen, workspace.currentDesktop);
+    debug("Screen area of", screen.name, screenArea);
+    screens.push([ i, screenArea ]);
   }
-  screens.sort(screenSort)
-  return screens[logicalScreen][0]
+  screens.sort(screenSort);
+  debug(screens);
+  return workspace.screens[screens[logicalScreen][0]];
 }
 
 // Return the topmost client window on the given screen.
 function topClientOnScreen(physicalScreen) {
-  const allClients = workspace.clientList();
+  const allClients = workspace.windowList();
   var topClient = null;
   for (var i = 0; i < allClients.length; ++i) {
     var c = allClients[i];
-    if (c.specialWindow || c.screen != physicalScreen ||
-        (c.desktop != workspace.currentDesktop && c.desktop != -1)) {
+    var onCurrentDesktop = (c.desktops.length == 0)
+        || c.desktops.includes(workspace.currentDesktop);
+    if (c.specialWindow || c.output != physicalScreen
+        || !onCurrentDesktop) {
       continue;
     }
 
@@ -44,15 +55,17 @@ function topClientOnScreen(physicalScreen) {
 }
 
 function setupShortcuts() {
+  debug("setting up shortcuts");
   const scriptName = "screen-shortcuts";
   for (let i = 0; i < 3; ++i) {
     let title = `_Switch to Screen ${i}_`;
     let text = `Switch to Screen ${i} (${scriptName})`;
     let shortcut = "Alt+" + [ "Q", "W", "E" ][i];
     registerShortcut(title, text, shortcut, function() {
+      debug(" -- in focus handler -- ");
       var newClient = topClientOnScreen(logicalToPhysicalScreen(i));
       if (newClient !== null) {
-        workspace.activeClient = newClient;
+        workspace.activeWindow = newClient;
       }
     });
 
@@ -60,10 +73,13 @@ function setupShortcuts() {
     text = `Window to Screen ${i} (${scriptName})`;
     shortcut = "Alt+Shift+" + [ "Q", "W", "E" ][i];
     registerShortcut(title, text, shortcut, function() {
-      workspace.sendClientToScreen(workspace.activeClient,
+      debug(" -- in move handler -- ");
+      workspace.sendClientToScreen(workspace.activeWindow,
                                    logicalToPhysicalScreen(i));
     });
   }
 }
+
+debug("starting kwin-screen-shortcuts");
 
 setupShortcuts();

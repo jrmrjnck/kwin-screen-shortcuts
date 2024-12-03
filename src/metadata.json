@@ -10,7 +10,7 @@
             }
         ],
         "Id": "screen-shortcuts",
-        "Version": "1.0",
+        "Version": "0.2",
         "License": "Unlicense",
         "Website": "https://github.com/jrmrjnck/kwin-screen-shortcuts"
     },
